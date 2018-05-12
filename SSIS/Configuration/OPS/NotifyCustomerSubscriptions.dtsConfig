@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<DTSConfiguration>
+  <DTSConfigurationHeading>
+    <DTSConfigurationFileInfo GeneratedBy="DOTCOM\ex19" GeneratedFromPackageName="NotifyCustomerSubscriptions" GeneratedFromPackageID="{D497DD81-0585-467F-947F-AF543BEFC3D0}" GeneratedDate="22/08/2013 14:21:33"/>
+  </DTSConfigurationHeading>
+  <Configuration ConfiguredType="Property" Path="\Package.Connections[DB23.MartiniODS].Properties[ConnectionString]" ValueType="String">
+    <ConfiguredValue>Data Source=OPS01DWH01\dwh01;Initial Catalog=MartiniODS;Provider=SQLNCLI.1;Integrated Security=SSPI;Auto Translate=False;</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Connections[DB23.tescosubscription].Properties[ConnectionString]" ValueType="String">
+    <ConfiguredValue>Data Source=OPS01DB23\DB23;Initial Catalog=TescoSubscription;Provider=SQLOLEDB.1;Integrated Security=SSPI;</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Variables[User::PackageID].Properties[Value]" ValueType="Int16">
+    <ConfiguredValue>2</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package\Fetch and call.Variables[User::BatchProcessInterval].Properties[Value]" ValueType="Int32">
+    <ConfiguredValue>0</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package\Fetch and call.Variables[User::BatchSize].Properties[Value]" ValueType="Int32">
+    <ConfiguredValue>1000</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package\Fetch and call.Variables[User::BusinessName].Properties[Value]" ValueType="String">
+    <ConfiguredValue>Grocery</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package\Fetch and call.Variables[User::Channel].Properties[Value]" ValueType="String">
+    <ConfiguredValue>Web</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package\Fetch and call.Variables[User::Language].Properties[Value]" ValueType="String">
+    <ConfiguredValue>EN</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package\Fetch and call.Variables[User::SchedulerServiceURL].Properties[Value]" ValueType="String">
+    <ConfiguredValue>http://UKTPP01DELSA01v/SchedulerService/SchedulerService.svc</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package\Fetch,Call, PersonalizeSaving.Variables[User::SchedulerServiceURL].Properties[Value]" ValueType="String">
+    <ConfiguredValue>http://UKTPP01DELSA01v/SchedulerService/SchedulerService.svc</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package\Update PackageExecutionHistory.Variables[User::PackageSuccessStatus].Properties[Value]" ValueType="Int16">
+    <ConfiguredValue>13</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.EventHandlers[OnError]\Update PackageExecutionHistory on Failure.Variables[User::PackageFailureStatus].Properties[Value]" ValueType="Int16">
+    <ConfiguredValue>14</ConfiguredValue>
+  </Configuration>
+</DTSConfiguration>
+

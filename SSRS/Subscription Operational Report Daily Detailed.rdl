@@ -1,0 +1,2088 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <DataSources>
+    <DataSource Name="DB23_TescoSubscription">
+      <rd:DataSourceID>7363ca06-4eed-4c8f-9dfd-084cba889277</rd:DataSourceID>
+      <ConnectionProperties>
+        <DataProvider>SQL</DataProvider>
+        <ConnectString>Data Source=uktul02sqldb23\db23;Initial Catalog=TescoSubscription</ConnectString>
+        <IntegratedSecurity>true</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <InteractiveHeight>29.7cm</InteractiveHeight>
+  <rd:DrawGrid>true</rd:DrawGrid>
+  <InteractiveWidth>21cm</InteractiveWidth>
+  <rd:GridSpacing>0.25cm</rd:GridSpacing>
+  <rd:SnapToGrid>true</rd:SnapToGrid>
+  <RightMargin>2.5cm</RightMargin>
+  <LeftMargin>2.5cm</LeftMargin>
+  <PageHeader>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <ReportItems>
+      <Line Name="line1">
+        <Top>1.75cm</Top>
+        <Width>42.25cm</Width>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderWidth>
+            <Default>4.5pt</Default>
+          </BorderWidth>
+        </Style>
+        <ZIndex>2</ZIndex>
+        <Left>0.25cm</Left>
+        <Height>0cm</Height>
+      </Line>
+      <Line Name="line3">
+        <Top>1.5cm</Top>
+        <Width>0cm</Width>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <ZIndex>1</ZIndex>
+        <Left>28cm</Left>
+        <Height>0cm</Height>
+      </Line>
+      <Textbox Name="textbox10">
+        <rd:DefaultName>textbox10</rd:DefaultName>
+        <Top>0.25cm</Top>
+        <Width>44cm</Width>
+        <Style>
+          <Color>Navy</Color>
+          <FontSize>14pt</FontSize>
+          <TextDecoration>Underline</TextDecoration>
+          <TextAlign>Center</TextAlign>
+          <PaddingLeft>2pt</PaddingLeft>
+          <PaddingRight>2pt</PaddingRight>
+          <PaddingTop>2pt</PaddingTop>
+          <PaddingBottom>2pt</PaddingBottom>
+        </Style>
+        <CanGrow>true</CanGrow>
+        <Left>0.25cm</Left>
+        <Height>1cm</Height>
+        <Value>=Globals!ReportName  &amp; " : " &amp; Globals!ExecutionTime</Value>
+      </Textbox>
+    </ReportItems>
+    <Height>2.25cm</Height>
+    <PrintOnLastPage>true</PrintOnLastPage>
+    <Style>
+      <BorderStyle>
+        <Default>Solid</Default>
+      </BorderStyle>
+    </Style>
+  </PageHeader>
+  <BottomMargin>2.5cm</BottomMargin>
+  <rd:ReportID>93b0c0c1-1cf6-494b-b954-c0ae33b9c858</rd:ReportID>
+  <PageWidth>21cm</PageWidth>
+  <DataSets>
+    <DataSet Name="Notification">
+      <Fields>
+        <Field Name="Payment_Failure">
+          <DataField>Payment Failure</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Due_to_be_Sent">
+          <DataField>Due to be Sent</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Sent_For">
+          <DataField>Sent For</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Not_Sent">
+          <DataField>Not Sent</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>DB23_TescoSubscription</DataSourceName>
+        <CommandText>DECLARE @CurrentDate DATETIME, @NotifyPeriod TINYINT, @ActiveSubscriptionStatus TINYINT, @RecurringChannelID TINYINT, @SystemFailureStatusID TINYINT, 
+@CardFailure TINYINT, @SuccessStatus TINYINT DECLARE @PaymentFailure AS TABLE (NotificationType nvarchar(50), EmailCount int, Remarks nvarchar(50)) 
+DECLARE @RenewalReceipt AS TABLE (NotificationType nvarchar(50), EmailCount int, Remarks nvarchar(50)) SELECT     @CurrentDate = CONVERT(VARCHAR, GETDATE(), 101), 
+                                                                                                                                                                                                                                                                    @NotifyPeriod = 7, @ActiveSubscriptionStatus = 8, 
+                                                                                                                                                                                                                                                                    @CardFailure = 2, 
+                                                                                                                                                                                                                                                                    @SuccessStatus = 1
+                                                                                                                                                                                                                                                                        /*Payment Failure*/ INSERT 
+                                                                                                                                                                                                                                                                         INTO            @PaymentFailure
+                                                                                                                                                                                                                                                                                                    SELECT     'Payment Failure' AS NotificationType,
+                                                                                                                                                                                                                                                                                                                             COUNT(DISTINCT (CustomerID))
+                                                                                                                                                                                                                                                                                                                             EmailCount, 
+                                                                                                                                                                                                                                                                                                                            'DueToBeSent' AS Remarks
+                                                                                                                                                                                                                                                                                                     FROM         (SELECT     CS.CustomerId, 
+                                                                                                                                                                                                                                                                                                                                                   CustomerPaymentHistoryID,
+                                                                                                                                                                                                                                                                                                                                                    PaymentProcessStatus
+                                                                                                                                                                                                                                                                                                                            FROM          [TescoSubscription].[PackageExecutionHistory]
+                                                                                                                                                                                                                                                                                                                                                    PEH(NOLOCK) JOIN
+                                                                                                                                                                                                                                                                                                                                                   [TescoSubscription].[CustomerPaymentHistory]
+                                                                                                                                                                                                                                                                                                                                                    CPH(NOLOCK) ON 
+                                                                                                                                                                                                                                                                                                                                                   CONVERT(VARCHAR,
+                                                                                                                                                                                                                                                                                                                                                    PEH.PackageStartTime,
+                                                                                                                                                                                                                                                                                                                                                    101) 
+                                                                                                                                                                                                                                                                                                                                                   &gt;= @CurrentDate AND
+                                                                                                                                                                                                                                                                                                                                                    CPH.PackageExecutionHistoryID
+                                                                                                                                                                                                                                                                                                                                                    = PEH.PackageExecutionHistoryID
+                                                                                                                                                                                                                                                                                                                                                    JOIN
+                                                                                                                                                                                                                                                                                                                                                   [TescoSubscription].[CustomerSubscription]
+                                                                                                                                                                                                                                                                                                                                                    CS ON 
+                                                                                                                                                                                                                                                                                                                                                   CS.CustomerSubscriptionID
+                                                                                                                                                                                                                                                                                                                                                    = CPH.CustomerSubscriptionID)
+                                                                                                                                                                                                                                                                                                                             PP JOIN
+                                                                                                                                                                                                                                                                                                                            tescosubscription.CustomerPaymentHistoryResponse
+                                                                                                                                                                                                                                                                                                                             CPH ON 
+                                                                                                                                                                                                                                                                                                                            PP.CustomerPaymentHistoryID
+                                                                                                                                                                                                                                                                                                                             = CPH.CustomerPaymentHistoryID
+                                                                                                                                                                                                                                                                                                     WHERE     PaymentStatusID = @CardFailure
+UNION ALL
+SELECT     'Payment Failure' AS PaymentType, COUNT(DISTINCT (CustomerID)) AS SubscriptionCount, 'SentFor' AS Remarks
+FROM         (SELECT     CS.CustomerId, CustomerPaymentHistoryID, PaymentProcessStatus, IsEmailSent
+                       FROM          [TescoSubscription].[PackageExecutionHistory] PEH(NOLOCK) JOIN
+                                              [TescoSubscription].[CustomerPaymentHistory] CPH(NOLOCK) ON CONVERT(VARCHAR, PEH.PackageStartTime, 101) &gt;= @CurrentDate AND 
+                                              CPH.PackageExecutionHistoryID = PEH.PackageExecutionHistoryID JOIN
+                                              [TescoSubscription].[CustomerSubscription] CS ON CS.CustomerSubscriptionID = CPH.CustomerSubscriptionID) PP JOIN
+                      tescosubscription.CustomerPaymentHistoryResponse CPH ON PP.CustomerPaymentHistoryID = CPH.CustomerPaymentHistoryID
+WHERE     PaymentStatusID = @CardFailure AND IsEmailSent = 1
+UNION ALL
+SELECT     'Payment Failure' AS PaymentType, COUNT(DISTINCT (CustomerID)) AS SubscriptionCount, 'NotSent' AS Remarks
+FROM         (SELECT     CS.CustomerId, CustomerPaymentHistoryID, PaymentProcessStatus, IsEmailSent
+                       FROM          [TescoSubscription].[PackageExecutionHistory] PEH(NOLOCK) JOIN
+                                              [TescoSubscription].[CustomerPaymentHistory] CPH(NOLOCK) ON CONVERT(VARCHAR, PEH.PackageStartTime, 101) &gt;= @CurrentDate AND 
+                                              CPH.PackageExecutionHistoryID = PEH.PackageExecutionHistoryID JOIN
+                                              [TescoSubscription].[CustomerSubscription] CS ON CS.CustomerSubscriptionID = CPH.CustomerSubscriptionID) PP JOIN
+                      tescosubscription.CustomerPaymentHistoryResponse CPH ON PP.CustomerPaymentHistoryID = CPH.CustomerPaymentHistoryID
+WHERE     PaymentStatusID = @CardFailure AND IsEmailSent = 0
+                          /*Renewal Receipt*/ INSERT 
+                           INTO            @RenewalReceipt
+                                                      SELECT     'Renewal / Monthly Payment Receipt' AS NotificationType, COUNT(DISTINCT (CustomerID)) EmailCount, 'DueToBeSent' AS Remarks
+                                                       FROM         (SELECT     CS.CustomerId, CustomerPaymentHistoryID, PaymentProcessStatus, PaymentModeID
+                                                                              FROM          [TescoSubscription].[PackageExecutionHistory] PEH(NOLOCK) JOIN
+                                                                                                     [TescoSubscription].[CustomerPaymentHistory] CPH(NOLOCK) ON CONVERT(VARCHAR, PEH.PackageStartTime, 101) 
+                                                                                                     &gt;= @CurrentDate AND CPH.PackageExecutionHistoryID = PEH.PackageExecutionHistoryID JOIN
+                                                                                                     [TescoSubscription].[CustomerSubscription] CS ON CS.CustomerSubscriptionID = CPH.CustomerSubscriptionID JOIN
+                                                                                                     [TescoSubscription].[CustomerPayment] CP ON CP.CustomerPaymentID = CPH.CustomerPaymentID) PP JOIN
+                                                                              tescosubscription.CustomerPaymentHistoryResponse CPH ON PP.CustomerPaymentHistoryID = CPH.CustomerPaymentHistoryID
+                                                       WHERE     PaymentStatusID = @SuccessStatus AND PaymentModeID &lt;&gt; 2
+UNION ALL
+SELECT     'Renewal / Monthly Payment Receipt' AS NotificationType, COUNT(DISTINCT (CustomerID)) AS EmailCount, 'SentFor' AS Remarks
+FROM         (SELECT     CS.CustomerId, CustomerPaymentHistoryID, PaymentProcessStatus, IsEmailSent, PaymentModeID
+                       FROM          [TescoSubscription].[PackageExecutionHistory] PEH(NOLOCK) JOIN
+                                              [TescoSubscription].[CustomerPaymentHistory] CPH(NOLOCK) ON CONVERT(VARCHAR, PEH.PackageStartTime, 101) &gt;= @CurrentDate AND 
+                                              CPH.PackageExecutionHistoryID = PEH.PackageExecutionHistoryID JOIN
+                                              [TescoSubscription].[CustomerSubscription] CS ON CS.CustomerSubscriptionID = CPH.CustomerSubscriptionID JOIN
+                                              [TescoSubscription].[CustomerPayment] CP ON CP.CustomerPaymentID = CPH.CustomerPaymentID) PP JOIN
+                      tescosubscription.CustomerPaymentHistoryResponse CPH ON PP.CustomerPaymentHistoryID = CPH.CustomerPaymentHistoryID
+WHERE     PaymentStatusID = @SuccessStatus AND IsEmailSent = 1 AND PaymentModeID &lt;&gt; 2
+UNION ALL
+SELECT     'Renewal / Monthly payment recipt' AS NotificationType, COUNT(DISTINCT (CustomerID)) AS EmailCount, 'NotSent' AS Remarks
+FROM         (SELECT     CS.CustomerId, CustomerPaymentHistoryID, PaymentProcessStatus, IsEmailSent, PaymentModeID
+                       FROM          [TescoSubscription].[PackageExecutionHistory] PEH(NOLOCK) JOIN
+                                              [TescoSubscription].[CustomerPaymentHistory] CPH(NOLOCK) ON CONVERT(VARCHAR, PEH.PackageStartTime, 101) &gt;= @CurrentDate AND 
+                                              CPH.PackageExecutionHistoryID = PEH.PackageExecutionHistoryID JOIN
+                                              [TescoSubscription].[CustomerSubscription] CS ON CS.CustomerSubscriptionID = CPH.CustomerSubscriptionID JOIN
+                                              [TescoSubscription].[CustomerPayment] CP ON CP.CustomerPaymentID = CPH.CustomerPaymentID) PP JOIN
+                      tescosubscription.CustomerPaymentHistoryResponse CPH ON PP.CustomerPaymentHistoryID = CPH.CustomerPaymentHistoryID
+WHERE     PaymentStatusID = @SuccessStatus AND IsEmailSent = 0 AND PaymentModeID &lt;&gt; 2
+                          /*Union all the table variable.*/ SELECT 'Payment Failure' AS 'Payment Failure', DuetobeSent AS 'Due to be Sent', SentFor AS 'Sent For', NotSent AS 'Not Sent'
+                           FROM         (SELECT     Remarks, EmailCount
+                                                  FROM          @PaymentFailure) up PIVOT (SUM(EmailCount) FOR Remarks IN (DuetobeSent, SentFor, NotSent)) AS pvt
+UNION ALL
+SELECT     'Renewal / Monthly Payment Receipt' AS 'Renewal / Monthly Payment Receipt', DuetobeSent AS 'Due to be Sent', SentFor AS 'Sent For', NotSent AS 'Not Sent'
+FROM         (SELECT     Remarks, EmailCount
+                       FROM          @RenewalReceipt) up PIVOT (SUM(EmailCount) FOR Remarks IN (DuetobeSent, SentFor, NotSent)) AS pvt2</CommandText>
+      </Query>
+    </DataSet>
+    <DataSet Name="Notification_Failure">
+      <Fields>
+        <Field Name="CustomerID">
+          <DataField>CustomerID</DataField>
+          <rd:TypeName>System.Int64</rd:TypeName>
+        </Field>
+        <Field Name="NotificationType">
+          <DataField>NotificationType</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>DB23_TescoSubscription</DataSourceName>
+        <CommandText>/* Disabled  A SSIS Report Reports - Subscription Operational Report Daily(DB11) */
+DECLARE
+             @CurrentDate DATETIME      
+            ,@CardFaliure TINYINT
+            ,@SuccessStatus TINYINT 
+            ,@ActiveSubscriptionStatus TINYINT
+            ,@NotifyPeriod  TINYINT
+
+SELECT        @CurrentDate = Convert(varchar,getdate(),101)
+             ,@CardFaliure = 2     
+             ,@SuccessStatus = 1
+
+
+
+SELECT DISTINCT(CustomerID) AS CustomerID
+      ,'Payment Sucess Email' AS NotificationType
+           FROM  
+          (SELECT     CS.CustomerId, CustomerPaymentHistoryID, PaymentProcessStatus, IsEmailSent,PaymentModeID
+              FROM       [TescoSubscription].[PackageExecutionHistory] PEH(NOLOCK) JOIN
+                         [TescoSubscription].[CustomerPaymentHistory] CPH(NOLOCK) ON CONVERT(VARCHAR, PEH.PackageStartTime, 101) &gt;= @CurrentDate AND 
+                         CPH.PackageExecutionHistoryID = PEH.PackageExecutionHistoryID JOIN
+                         [TescoSubscription].[CustomerSubscription] CS ON CS.CustomerSubscriptionID = CPH.CustomerSubscriptionID
+                         JOIN [TescoSubscription].[CustomerPayment] CP ON CP.CustomerPaymentID = CPH.CustomerPaymentID) PP JOIN
+                         tescosubscription.CustomerPaymentHistoryResponse CPH ON PP.CustomerPaymentHistoryID = CPH.CustomerPaymentHistoryID
+                         WHERE PaymentStatusID = @SuccessStatus AND IsEmailSent = 0 AND PaymentModeID &lt;&gt;2
+
+UNION ALL
+
+SELECT DISTINCT(CustomerID) AS CustomerID
+      ,'Card Failure Email' AS NotificationType
+           FROM  
+         (SELECT     CS.CustomerId, CustomerPaymentHistoryID, PaymentProcessStatus, IsEmailSent,PaymentModeID
+              FROM       [TescoSubscription].[PackageExecutionHistory] PEH(NOLOCK) JOIN
+                         [TescoSubscription].[CustomerPaymentHistory] CPH(NOLOCK) ON CONVERT(VARCHAR, PEH.PackageStartTime, 101) &gt;= @CurrentDate AND 
+                         CPH.PackageExecutionHistoryID = PEH.PackageExecutionHistoryID JOIN
+                         [TescoSubscription].[CustomerSubscription] CS ON CS.CustomerSubscriptionID = CPH.CustomerSubscriptionID
+                         JOIN [TescoSubscription].[CustomerPayment] CP ON CP.CustomerPaymentID = CPH.CustomerPaymentID) PP JOIN
+                         tescosubscription.CustomerPaymentHistoryResponse CPH ON PP.CustomerPaymentHistoryID = CPH.CustomerPaymentHistoryID
+                         WHERE PaymentStatusID = @CardFaliure AND IsEmailSent = 0 AND PaymentModeID &lt;&gt;2</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+    </DataSet>
+    <DataSet Name="Payments">
+      <Fields>
+        <Field Name="Renewals">
+          <DataField>Renewals</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Due_to_be_paid">
+          <DataField>Due to be paid</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Success">
+          <DataField>Success</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Card_Faliure">
+          <DataField>Card Faliure</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="SystemFailure">
+          <DataField>SystemFailure</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Unknown_Error">
+          <DataField>Unknown Error</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>DB23_TescoSubscription</DataSourceName>
+        <CommandText>/* Disabled  A SSIS Report Reports - Subscription Operational Report Daily(DB11)
+
+Changed by   Changed on                    Request Number
+    jx37       12 march 2014                  RF1535915
+ */
+--Payments
+
+--Renewals
+
+DECLARE @StartOfDay DATETIME
+        ,@YesterdayDate DATETIME
+        ,@NotifyPeriod TINYINT 
+		,@SuccessPaymentProcessStatus TINYINT     
+		,@InProgressPaymentProcessStatus TINYINT    
+		,@SystemFailureStatusID TINYINT 
+		,@RecurringChannelID    TINYINT   
+		,@CardFaliure TINYINT
+		,@RenewalSuccess TINYINT
+		,@ActiveSubscriptionStatus TINYINT
+		,@SuccessStatus TINYINT 
+Declare @Renewals as table (PaymentType nvarchar(50),SubscriptionCount int, Remarks nvarchar(50))
+Declare @SignUp as table (PaymentType nvarchar(50),SubscriptionCount int, Remarks nvarchar(50))
+Declare @startdateSignup datetime /*RF1535915*/
+Declare @enddateSignup datetime  /*RF1535915*/
+
+
+SELECT  @StartOfDay = CONVERT(VARCHAR(10), GETDATE(), 112)
+    	,@YesterdayDate = Convert(VARCHAR(10),GETDATE()-1,112)
+	    ,@SuccessPaymentProcessStatus = 6      
+	    ,@InProgressPaymentProcessStatus = 5    
+	    ,@SystemFailureStatusID = 3   
+	    ,@RenewalSuccess = 1
+	    ,@ActiveSubscriptionStatus = 8
+        ,@NotifyPeriod = 7
+        ,@RecurringChannelID = 2   
+        ,@SystemFailureStatusID = 3      
+        ,@CardFaliure = 2     
+        ,@SuccessStatus = 1
+--Set @startdateSignup=convert(char(11),(Select(dateadd(dd,-1,getdate()))))  /*RF1535915*/    
+--set @enddateSignup=Convert(char(11),(select(dateadd(dd,0,getdate())))) /*RF1535915*/
+       
+       
+Insert into @Renewals       
+ SELECT 'Renewals / Monthly' AS PaymentType
+    ,COUNT(Distinct (CustomerID)) SubscriptionCount
+    ,'Duetobepaid' AS Remarks FROM (SELECT CS.CustomerId, CustomerPaymentHistoryID, PaymentProcessStatus FROM    
+	[TescoSubscription].[PackageExecutionHistory] PEH WITH (NOLOCK)  
+	JOIN [TescoSubscription].[CustomerPaymentHistory] CPH WITH (NOLOCK)
+	ON CONVERT(VARCHAR,PEH.PackageStartTime,112) &gt;= @StartOfDay AND CPH.PackageExecutionHistoryID = PEH.PackageExecutionHistoryID    
+	JOIN [TescoSubscription].[CustomerSubscription] CS ON CS.CustomerSubscriptionID = CPH.CustomerSubscriptionID) PP
+	JOIN tescosubscription.CustomerPaymentHistoryResponse CPH on PP.CustomerPaymentHistoryID = CPH.CustomerPaymentHistoryID   
+
+UNION ALL
+
+SELECT 'Renewals / Monthly' AS PaymentType
+    ,COUNT(Distinct (CustomerID)) SubscriptionCount
+    ,'Success' AS Remarks FROM  (SELECT CS.CustomerId, CustomerPaymentHistoryID, PaymentProcessStatus FROM    
+	[TescoSubscription].[PackageExecutionHistory] PEH (NOLOCK)  
+	JOIN [TescoSubscription].[CustomerPaymentHistory] CPH (NOLOCK)
+	ON CONVERT(VARCHAR,PEH.PackageStartTime,101) &gt;= @StartOfDay AND CPH.PackageExecutionHistoryID = PEH.PackageExecutionHistoryID    
+	JOIN [TescoSubscription].[CustomerSubscription] CS ON CS.CustomerSubscriptionID = CPH.CustomerSubscriptionID) PP    
+	JOIN tescosubscription.CustomerPaymentHistoryResponse CPH ON PP.CustomerPaymentHistoryID = CPH.CustomerPaymentHistoryID    
+	WHERE PaymentStatusID = @RenewalSuccess
+
+UNION ALL
+    
+SELECT 'Renewals / Monthly' AS PaymentType
+   ,COUNT(Distinct (CustomerID)) SubscriptionCount 
+   ,'CardFaliure' AS Remarks FROM (SELECT CS.CustomerId, CustomerPaymentHistoryID, PaymentProcessStatus FROM    
+	[TescoSubscription].[PackageExecutionHistory] PEH (NOLOCK)  
+	JOIN [TescoSubscription].[CustomerPaymentHistory] CPH (NOLOCK)
+	ON CONVERT(VARCHAR,PEH.PackageStartTime,101) &gt;= @StartOfDay AND CPH.PackageExecutionHistoryID = PEH.PackageExecutionHistoryID    
+	JOIN [TescoSubscription].[CustomerSubscription] CS ON CS.CustomerSubscriptionID = CPH.CustomerSubscriptionID) PP    
+	JOIN tescosubscription.CustomerPaymentHistoryResponse CPH ON PP.CustomerPaymentHistoryID = CPH.CustomerPaymentHistoryID    
+	WHERE PaymentStatusID = @CardFaliure
+
+UNION ALL
+
+SELECT 'Renewals / Monthly' AS PaymentType
+   ,COUNT(Distinct (CustomerID)) SubscriptionCount
+   ,'SystemFailure' AS Remarks FROM (SELECT CS.CustomerId, CustomerPaymentHistoryID, PaymentProcessStatus FROM    
+	[TescoSubscription].[PackageExecutionHistory] PEH (NOLOCK)  
+	JOIN [TescoSubscription].[CustomerPaymentHistory] CPH (NOLOCK)
+	ON CONVERT(VARCHAR,PEH.PackageStartTime,101) &gt;= @StartOfDay AND CPH.PackageExecutionHistoryID = PEH.PackageExecutionHistoryID    
+	JOIN [TescoSubscription].[CustomerSubscription] CS ON CS.CustomerSubscriptionID = CPH.CustomerSubscriptionID) PP    
+	JOIN tescosubscription.CustomerPaymentHistoryResponse CPH ON PP.CustomerPaymentHistoryID = CPH.CustomerPaymentHistoryID    
+	WHERE PaymentStatusID = @SystemFailureStatusID
+
+UNION ALL
+
+
+SELECT 'Renewals / Monthly' AS PaymentType
+    ,COUNT(Distinct (CustomerID)) SubscriptionCount  
+    ,'UnknownError' AS Remarks FROM    
+   tescosubscription.PackageExecutionHistory PEH  
+   JOIN [tescosubscription].CustomerPaymentHistory CPH ON  PEH.PackageStartTime &gt;= @StartOfDay 
+   AND CPH.PackageExecutionHistoryID=PEH.PackageExecutionHistoryID    
+   JOIN tescosubscription.CustomerSubscription CS ON CS.CustomerSubscriptionID =CPH.CustomerSubscriptionID
+   WHERE PaymentProcessStatus= @InProgressPaymentProcessStatus
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- SignUp
+insert into @SignUp
+SELECT 'Sign Up' AS PaymentType
+	 ,COUNT(1)AS SubscriptionCount
+	 ,'Success' AS Remarks FROM 
+	  [TescoSubscription].[CustomerSubscription] WITH (NOLOCK)
+	  --WHERE CONVERT(VARCHAR,CustomerPlanStartDate,101) &gt;=@StartOfDay /* previous Data range Changed as per the request RF1535915  */ 
+	  WHERE CONVERT(VARCHAR,CustomerPlanStartDate,112) &gt;=@YesterdayDate --and  CONVERT(VARCHAR,CustomerPlanStartDate,101)&lt;=@enddateSignup /*RF1535915*/
+	  AND SubscriptionStatus = @ActiveSubscriptionStatus and SwitchCustomerSubscriptionID IS NULL
+
+UNION ALL
+
+
+SELECT 'Sign Up' AS PaymentType
+      ,COUNT (DISTINCT(CS.CustomerID))AS SubscriptionCount
+      ,'CardFailure' AS Remarks
+       FROM [TescoSubscription].[CustomerSubscription] CS WITH (NOLOCK)
+       INNER JOIN [TescoSubscription].[CustomerPaymentHistory] PH WITH (NOLOCK)
+       ON CS.CustomerSubscriptionID  = PH.CustomerSubscriptionID
+       INNER JOIN [TescoSubscription].[CustomerPaymentHistoryResponse] HR WITH (NOLOCK)
+       ON PH.CustomerPaymentHistoryID = HR.CustomerPAymentHIstoryID      
+       --WHERE CONVERT(VARCHAR,CustomerPlanStartDate,101)&gt;=@StartOfDay /* previous Data range Changed as per the request RF1535915  */ 
+       WHERE CONVERT(VARCHAR,CustomerPlanStartDate,112)&gt;=@YesterdayDate --and  CONVERT(VARCHAR,CustomerPlanStartDate,101)&lt;=@enddateSignup /*RF1535915*/
+       AND HR.PaymentStatusID =@CardFaliure 
+       AND SwitchCustomerSubscriptionID IS NULL
+
+UNION ALL
+
+SELECT 'Sign Up' AS PaymentType
+      ,COUNT (DISTINCT(CS.CustomerID)) AS SubscriptionCount
+      ,'SystemFailure' Remarks
+       FROM [TescoSubscription].[CustomerSubscription] CS WITH (NOLOCK)
+       INNER JOIN [TescoSubscription].[CustomerPaymentHistory] PH WITH (NOLOCK)
+       ON CS.CustomerSubscriptionID  = PH.CustomerSubscriptionID
+       INNER JOIN [TescoSubscription].[CustomerPaymentHistoryResponse] HR WITH (NOLOCK)
+       ON PH.CustomerPaymentHistoryID = HR.CustomerPAymentHIstoryID      
+       --WHERE CONVERT(VARCHAR,CustomerPlanStartDate,101)&gt;=@StartOfDay /* previous Data range Changed as per the request RF1535915  */ 
+       WHERE CONVERT(VARCHAR,CustomerPlanStartDate,112)&gt;=@YesterdayDate --and CONVERT(VARCHAR,CustomerPlanStartDate,101)&lt;=@enddateSignup /*RF1535915*/
+       AND HR.PaymentStatusID =@SystemFailureStatusID 
+       AND SwitchCustomerSubscriptionID IS NULL
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+-- union all the table variable
+SELECT 'Renewals / Monthly' AS Renewals,Duetobepaid AS 'Due to be paid' ,Success,CardFaliure AS 'Card Faliure',SystemFailure AS 'SystemFailure',UnknownError AS'Unknown Error'
+FROM (
+SELECT Remarks,SubscriptionCount
+FROM @Renewals) up
+PIVOT (SUM(SubscriptionCount)FOR Remarks IN (Renewals,Duetobepaid,Success,CardFaliure,SystemFailure,UnknownError))AS pvt
+
+ UNION ALL
+
+
+SELECT 'Sign Up' AS 'SignUp',Duetobepaid AS 'Due to be paid',Success,CardFailure AS 'Card Failure' ,SystemFailure AS 'System Failure',UnknownError AS'Unknown Error'
+FROM (
+SELECT Remarks,SubscriptionCount
+FROM @SignUp) up
+PIVOT (SUM(SubscriptionCount)FOR Remarks IN (SignUp,Duetobepaid,Success,CardFailure,SystemFailure,UnknownError))AS pvt1</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+    </DataSet>
+    <DataSet Name="Payment_Failure_Renewals">
+      <Fields>
+        <Field Name="CustomerID">
+          <DataField>CustomerID</DataField>
+          <rd:TypeName>System.Int64</rd:TypeName>
+        </Field>
+        <Field Name="Failure_Type">
+          <DataField>Failure Type</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Failure_Reason">
+          <DataField>Failure Reason</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>DB23_TescoSubscription</DataSourceName>
+        <CommandText>/* Query to get the renewal data */
+/* Disabled  A SSIS Report Reports - Subscription Operational Report Daily(DB11) */
+
+
+
+DECLARE      @CurrentDate DATETIME      
+            ,@SystemFailureStatusID TINYINT
+            ,@CardFaliure TINYINT
+            
+SELECT        @CurrentDate = Convert(varchar,getdate(),101)
+             ,@SystemFailureStatusID = 3      
+             ,@CardFaliure = 2 
+
+
+-- Payment Faliure Renewals
+
+
+SELECT Distinct(CustomerID) CustomerID
+       ,CASE WHEN PaymentStatusID = @CardFaliure THEN 'CardFaliure' ELSE 'System Failure' END AS 'Failure Type'
+       ,Remarks AS'Failure Reason'
+        FROM (SELECT CS.CustomerId, CustomerPaymentHistoryID, PaymentProcessStatus FROM    
+	[TescoSubscription].[PackageExecutionHistory] PEH (NOLOCK)  
+	JOIN [TescoSubscription].[CustomerPaymentHistory] CPH (NOLOCK)
+	ON CONVERT(VARCHAR,PEH.PackageStartTime,101) &gt;= @CurrentDate AND CPH.PackageExecutionHistoryID = PEH.PackageExecutionHistoryID    
+	JOIN [TescoSubscription].[CustomerSubscription] CS ON CS.CustomerSubscriptionID = CPH.CustomerSubscriptionID) PP    
+	JOIN tescosubscription.CustomerPaymentHistoryResponse CPH ON PP.CustomerPaymentHistoryID = CPH.CustomerPaymentHistoryID    
+	WHERE PaymentStatusID IN (@CardFaliure,@SystemFailureStatusID)
+    ORDER BY Remarks</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+    </DataSet>
+    <DataSet Name="Payment_Failure_SignUp">
+      <Fields>
+        <Field Name="CustomerID">
+          <DataField>CustomerID</DataField>
+          <rd:TypeName>System.Int64</rd:TypeName>
+        </Field>
+        <Field Name="Failure_Type">
+          <DataField>Failure Type</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Failure_Reason">
+          <DataField>Failure Reason</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>DB23_TescoSubscription</DataSourceName>
+        <CommandText>/* Query to get the renewal data */
+/* Disabled  A SSIS Report Reports - Subscription Operational Report Daily(DB11) */
+/*
+Changed by   Changed on                    Request Number
+    jx37       16 april 2014                  RF1573649(replaced Script)
+*/
+
+DECLARE
+ @CardFaliure    TINYINT  
+,@SuccessStatus  TINYINT
+,@ActiveSubscriptionStatus TINYINT
+,@SystemFailureStatusID    TINYINT
+,@YesterdayDate DATETIME
+
+SELECT 
+       @CardFaliure = 2     
+      ,@SuccessStatus = 1
+      ,@ActiveSubscriptionStatus = 8
+      ,@SystemFailureStatusID  = 3
+      ,@YesterdayDate = Convert(VARCHAR(10),GETDATE()-1,112)
+
+
+SELECT DISTINCT(CS.CustomerID) AS CustomerID
+      ,CASE PaymentStatusID WHEN 2 THEN 'Card Failure' ELSE 'System Failure' END AS 'Failure Type'
+      ,Remarks AS 'Failure Reason'
+       FROM [TescoSubscription].[CustomerSubscription] CS WITH (NOLOCK)
+       INNER JOIN [TescoSubscription].[CustomerPaymentHistory] PH WITH (NOLOCK)
+       ON CS.CustomerSubscriptionID  = PH.CustomerSubscriptionID
+       INNER JOIN [TescoSubscription].[CustomerPaymentHistoryResponse] HR WITH (NOLOCK)
+       ON PH.CustomerPaymentHistoryID = HR.CustomerPAymentHIstoryID      
+       --WHERE CONVERT(VARCHAR,CustomerPlanStartDate,101)&gt;=@StartOfDay /* previous Data range Changed as per the request RF1535915  */ 
+       WHERE CONVERT(VARCHAR,CustomerPlanStartDate,112)&gt;=@YesterdayDate --and  CONVERT(VARCHAR,CustomerPlanStartDate,101)&lt;=@enddateSignup /*RF1535915*/
+       AND HR.PaymentStatusID in (@CardFaliure,@SystemFailureStatusID)
+       AND SwitchCustomerSubscriptionID IS NULL
+       Order by Remarks</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+    </DataSet>
+  </DataSets>
+  <Width>44.50001cm</Width>
+  <Body>
+    <ColumnSpacing>1cm</ColumnSpacing>
+    <ReportItems>
+      <Table Name="table5">
+        <ZIndex>9</ZIndex>
+        <DataSetName>Payment_Failure_SignUp</DataSetName>
+        <Top>7.75cm</Top>
+        <Width>24cm</Width>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="CustomerID_2">
+                      <rd:DefaultName>CustomerID_2</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(rownumber(nothing) mod 2,"Silver","white")</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>2</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!CustomerID.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Faliure_Type">
+                      <rd:DefaultName>Faliure_Type</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(rownumber(nothing) mod 2,"Silver","white")</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>1</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!Failure_Type.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Faliure_Reason">
+                      <rd:DefaultName>Faliure_Reason</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(rownumber(nothing) mod 2,"Silver","white")</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!Failure_Reason.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+              <Height>0.63492cm</Height>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox23">
+                      <rd:DefaultName>textbox23</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>5</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>Customer ID</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox30">
+                      <rd:DefaultName>textbox30</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>4</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>Failure Type</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox32">
+                      <rd:DefaultName>textbox32</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>3</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>Failure Reason</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+              <Height>0.63492cm</Height>
+            </TableRow>
+          </TableRows>
+        </Header>
+        <TableColumns>
+          <TableColumn>
+            <Width>4.25cm</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>5.25cm</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>14.5cm</Width>
+          </TableColumn>
+        </TableColumns>
+        <Height>1.26984cm</Height>
+        <Left>20.25cm</Left>
+      </Table>
+      <Textbox Name="textbox16">
+        <rd:DefaultName>textbox16</rd:DefaultName>
+        <Top>7cm</Top>
+        <Width>7.25cm</Width>
+        <Style>
+          <Color>Navy</Color>
+          <FontSize>12pt</FontSize>
+          <FontWeight>700</FontWeight>
+          <TextDecoration>Underline</TextDecoration>
+          <TextAlign>Left</TextAlign>
+          <PaddingLeft>2pt</PaddingLeft>
+          <PaddingRight>2pt</PaddingRight>
+          <PaddingTop>2pt</PaddingTop>
+          <PaddingBottom>2pt</PaddingBottom>
+        </Style>
+        <ZIndex>8</ZIndex>
+        <CanGrow>true</CanGrow>
+        <Left>20.25cm</Left>
+        <Height>0.63492cm</Height>
+        <Value>Payments Failure-SignUp</Value>
+      </Textbox>
+      <Table Name="table3">
+        <ZIndex>7</ZIndex>
+        <DataSetName>Payments</DataSetName>
+        <Top>1.5cm</Top>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Renewals">
+                      <rd:DefaultName>Renewals</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>PaleGoldenrod</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>6</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!Renewals.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Due_to_be_paid">
+                      <rd:DefaultName>Due_to_be_paid</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(rownumber(nothing) mod 2,"Silver","white")</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>5</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!Due_to_be_paid.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Success">
+                      <rd:DefaultName>Success</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(rownumber(nothing) mod 2,"Silver","white")</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>4</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!Success.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Card_Faliure">
+                      <rd:DefaultName>Card_Faliure</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(rownumber(nothing) mod 2,"Silver","white")</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>3</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!Card_Faliure.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="SystemFailure">
+                      <rd:DefaultName>SystemFailure</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(rownumber(nothing) mod 2,"Silver","white")</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>2</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!SystemFailure.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Unknown_Error">
+                      <rd:DefaultName>Unknown_Error</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(rownumber(nothing) mod 2,"Silver","white")</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>1</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!Unknown_Error.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox35">
+                      <rd:DefaultName>textbox35</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=Switch 
+((Fields!SystemFailure.Value +Fields!Card_Faliure.Value)=0,"Green",
+((Fields!SystemFailure.Value +Fields!Card_Faliure.Value)/Fields!Success.Value)&gt;0.10,"Red" ,
+((Fields!SystemFailure.Value +Fields!Card_Faliure.Value)/Fields!Success.Value)&lt;=0.10,"orange" )</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <Value />
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+              <Height>0.63492cm</Height>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox36">
+                      <Style>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>18</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value />
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox6">
+                      <rd:DefaultName>textbox6</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>17</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>Due to be paid</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox17">
+                      <rd:DefaultName>textbox17</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>16</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>Success</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox18">
+                      <rd:DefaultName>textbox18</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>15</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>Card Failure</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox31">
+                      <rd:DefaultName>textbox31</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>14</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>System Failure</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox34">
+                      <rd:DefaultName>textbox34</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>13</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>Unknown Error</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox19">
+                      <rd:DefaultName>textbox19</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>12</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>RAG</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+              <Height>0.63492cm</Height>
+            </TableRow>
+          </TableRows>
+        </Header>
+        <TableColumns>
+          <TableColumn>
+            <Width>4.23786cm</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>3.53155cm</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>3.29612cm</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>3.29612cm</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>3.29612cm</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>3.29612cm</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>3.29612cm</Width>
+          </TableColumn>
+        </TableColumns>
+        <Height>1.90476cm</Height>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox28">
+                      <rd:DefaultName>textbox28</rd:DefaultName>
+                      <Style>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>11</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value />
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox1">
+                      <Style>
+                        <Color>Maroon</Color>
+                        <BackgroundColor>LightYellow</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>10</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>Total Payments</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox29">
+                      <Style>
+                        <BackgroundColor>LightYellow</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>9</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=sum(Fields!Success.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ColSpan>3</ColSpan>
+                  <ReportItems>
+                    <Textbox Name="textbox40">
+                      <rd:DefaultName>textbox40</rd:DefaultName>
+                      <Style>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>8</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Sum(Fields!Card_Faliure.Value, "Payments")+Sum(Fields!SystemFailure.Value, "Payments")+Sum(Fields!Unknown_Error.Value, "Payments")</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox37">
+                      <Style>
+                        <BackgroundColor>=Switch(Sum(Fields!Card_Faliure.Value)=0,"Green",
+(sum(Fields!Card_Faliure.Value)/sum(Fields!Success.Value))&gt;0.10,"Red" ,
+(sum(Fields!Card_Faliure.Value)/sum(Fields!Success.Value))&lt;=0.10,"orange" )</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>7</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value />
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+              <Height>0.63492cm</Height>
+            </TableRow>
+          </TableRows>
+        </Footer>
+        <Left>20.25cm</Left>
+      </Table>
+      <Table Name="table1">
+        <ZIndex>6</ZIndex>
+        <DataSetName>Notification</DataSetName>
+        <Top>1.5cm</Top>
+        <Width>18.80291cm</Width>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Payment_Failure">
+                      <rd:DefaultName>Payment_Failure</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>PaleGoldenrod</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>4</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!Payment_Failure.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Due_to_be_Sent">
+                      <rd:DefaultName>Due_to_be_Sent</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(rownumber(nothing) mod 2,"Silver","white")</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>3</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!Due_to_be_Sent.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Sent_For">
+                      <rd:DefaultName>Sent_For</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(rownumber(nothing) mod 2,"Silver","white")</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>2</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!Sent_For.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Not_Sent">
+                      <rd:DefaultName>Not_Sent</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(rownumber(nothing) mod 2,"Silver","white")</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>1</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!Not_Sent.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox26">
+                      <rd:DefaultName>textbox26</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>= SWITCH
+ (Fields!Sent_For.Value =Fields!Due_to_be_Sent.Value ,"Green",
+ (Fields!Sent_For.Value/Fields!Due_to_be_Sent.Value) &gt;=0.95,"Orange"
+ ,(Fields!Sent_For.Value/Fields!Due_to_be_Sent.Value) &lt; 0.95, "Red")</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <Value />
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+              <Height>0.63492cm</Height>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox5">
+                      <Style>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>14</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value />
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox2">
+                      <rd:DefaultName>textbox2</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>13</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>Due to be Sent</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox15">
+                      <rd:DefaultName>textbox15</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>12</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>Sent For</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox22">
+                      <rd:DefaultName>textbox22</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>11</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>Not Sent</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox25">
+                      <rd:DefaultName>textbox25</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>10</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>RAG</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+              <Height>0.63492cm</Height>
+            </TableRow>
+          </TableRows>
+        </Header>
+        <TableColumns>
+          <TableColumn>
+            <Width>6cm</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>3.75cm</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>3.02646cm</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>3cm</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>3.02645cm</Width>
+          </TableColumn>
+        </TableColumns>
+        <Height>1.90476cm</Height>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox33">
+                      <Style>
+                        <Color>Maroon</Color>
+                        <BackgroundColor>LightYellow</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>9</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>Total Emails</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox20">
+                      <rd:DefaultName>textbox20</rd:DefaultName>
+                      <Style>
+                        <Color>Maroon</Color>
+                        <BackgroundColor>LightYellow</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>8</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=sum(Fields!Due_to_be_Sent.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox21">
+                      <rd:DefaultName>textbox21</rd:DefaultName>
+                      <Style>
+                        <Color>Maroon</Color>
+                        <BackgroundColor>LightYellow</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>7</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=sum(Fields!Sent_For.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox24">
+                      <rd:DefaultName>textbox24</rd:DefaultName>
+                      <Style>
+                        <Color>Maroon</Color>
+                        <BackgroundColor>LightYellow</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>6</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=sum(Fields!Not_Sent.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox27">
+                      <rd:DefaultName>textbox27</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>= SWITCH
+ (sum(Fields!Sent_For.Value) = sum(Fields!Due_to_be_Sent.Value) ,"Green"
+ ,(sum(Fields!Sent_For.Value)/sum(Fields!Due_to_be_Sent.Value)) &gt;=0.95,"Orange"
+ ,(sum(Fields!Sent_For.Value)/sum(Fields!Due_to_be_Sent.Value))&lt; 0.95, "Red")</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>5</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value />
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+              <Height>0.63492cm</Height>
+            </TableRow>
+          </TableRows>
+        </Footer>
+        <Left>0.5cm</Left>
+      </Table>
+      <Textbox Name="textbox14">
+        <rd:DefaultName>textbox14</rd:DefaultName>
+        <Top>3.75cm</Top>
+        <Width>7.75cm</Width>
+        <Style>
+          <Color>Navy</Color>
+          <FontSize>12pt</FontSize>
+          <FontWeight>700</FontWeight>
+          <TextDecoration>Underline</TextDecoration>
+          <TextAlign>Left</TextAlign>
+          <PaddingLeft>2pt</PaddingLeft>
+          <PaddingRight>2pt</PaddingRight>
+          <PaddingTop>2pt</PaddingTop>
+          <PaddingBottom>2pt</PaddingBottom>
+        </Style>
+        <ZIndex>5</ZIndex>
+        <CanGrow>true</CanGrow>
+        <Left>20.25cm</Left>
+        <Height>0.75cm</Height>
+        <Value>Payments Failure-Renewal</Value>
+      </Textbox>
+      <Table Name="table4">
+        <ZIndex>4</ZIndex>
+        <DataSetName>Payment_Failure_Renewals</DataSetName>
+        <Top>4.5cm</Top>
+        <Width>23.99999cm</Width>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="CustomerID_1">
+                      <rd:DefaultName>CustomerID_1</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(rownumber(nothing) mod 2,"Silver","white")</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>2</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!CustomerID.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Failure_Type">
+                      <rd:DefaultName>Failure_Type</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(rownumber(nothing) mod 2,"Silver","white")</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>1</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!Failure_Type.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Failure_Reason">
+                      <rd:DefaultName>Failure_Reason</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(rownumber(nothing) mod 2,"Silver","white")</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!Failure_Reason.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+              <Height>0.63492cm</Height>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox7">
+                      <rd:DefaultName>textbox7</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>5</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>Customer ID</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox8">
+                      <rd:DefaultName>textbox8</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>4</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>Failure Type</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox9">
+                      <rd:DefaultName>textbox9</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <BorderColor>
+                          <Default>Gray</Default>
+                        </BorderColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>3</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>Failure Reason</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+              <Height>0.63492cm</Height>
+            </TableRow>
+          </TableRows>
+        </Header>
+        <TableColumns>
+          <TableColumn>
+            <Width>4cm</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>3.80952cm</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>16.19047cm</Width>
+          </TableColumn>
+        </TableColumns>
+        <Height>1.26984cm</Height>
+        <Left>20.25cm</Left>
+      </Table>
+      <Textbox Name="textbox13">
+        <rd:DefaultName>textbox13</rd:DefaultName>
+        <Top>3.75cm</Top>
+        <Width>6cm</Width>
+        <Style>
+          <Color>Navy</Color>
+          <FontSize>12pt</FontSize>
+          <FontWeight>700</FontWeight>
+          <TextDecoration>Underline</TextDecoration>
+          <TextAlign>Left</TextAlign>
+          <PaddingLeft>2pt</PaddingLeft>
+          <PaddingRight>2pt</PaddingRight>
+          <PaddingTop>2pt</PaddingTop>
+          <PaddingBottom>2pt</PaddingBottom>
+        </Style>
+        <ZIndex>3</ZIndex>
+        <CanGrow>true</CanGrow>
+        <Left>0.5cm</Left>
+        <Height>0.63492cm</Height>
+        <Value>Email Notification Failure</Value>
+      </Textbox>
+      <Textbox Name="textbox12">
+        <rd:DefaultName>textbox12</rd:DefaultName>
+        <Top>0.5cm</Top>
+        <Width>8.75cm</Width>
+        <Style>
+          <Color>Navy</Color>
+          <FontSize>12pt</FontSize>
+          <FontWeight>700</FontWeight>
+          <TextDecoration>Underline</TextDecoration>
+          <TextAlign>Left</TextAlign>
+          <PaddingLeft>2pt</PaddingLeft>
+          <PaddingRight>2pt</PaddingRight>
+          <PaddingTop>2pt</PaddingTop>
+          <PaddingBottom>2pt</PaddingBottom>
+        </Style>
+        <ZIndex>2</ZIndex>
+        <CanGrow>true</CanGrow>
+        <Left>20.25cm</Left>
+        <Height>0.63492cm</Height>
+        <Value>Payments</Value>
+      </Textbox>
+      <Textbox Name="textbox11">
+        <rd:DefaultName>textbox11</rd:DefaultName>
+        <Top>0.5cm</Top>
+        <Width>9cm</Width>
+        <Style>
+          <Color>Navy</Color>
+          <FontSize>12pt</FontSize>
+          <FontWeight>700</FontWeight>
+          <TextDecoration>Underline</TextDecoration>
+          <TextAlign>Left</TextAlign>
+          <PaddingLeft>2pt</PaddingLeft>
+          <PaddingRight>2pt</PaddingRight>
+          <PaddingTop>2pt</PaddingTop>
+          <PaddingBottom>2pt</PaddingBottom>
+        </Style>
+        <ZIndex>1</ZIndex>
+        <CanGrow>true</CanGrow>
+        <Left>0.5cm</Left>
+        <Height>0.75cm</Height>
+        <Value>Email</Value>
+      </Textbox>
+      <Table Name="table2">
+        <DataSetName>Notification_Failure</DataSetName>
+        <Top>4.5cm</Top>
+        <Width>17.75cm</Width>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="NotificationType_1">
+                      <rd:DefaultName>NotificationType_1</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(rownumber(nothing) mod 2,"Silver","white")</BackgroundColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>1</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!NotificationType.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="CustomerID">
+                      <rd:DefaultName>CustomerID</rd:DefaultName>
+                      <Style>
+                        <BackgroundColor>=IIf(rownumber(nothing) mod 2,"Silver","white")</BackgroundColor>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!CustomerID.Value</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+              <Height>0.63492cm</Height>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Style>
+          <BorderColor>
+            <Default>Gray</Default>
+          </BorderColor>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <TextAlign>Center</TextAlign>
+        </Style>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox3">
+                      <rd:DefaultName>textbox3</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <BorderColor>
+                          <Default>White</Default>
+                        </BorderColor>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>3</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>Notification Type</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="textbox4">
+                      <rd:DefaultName>textbox4</rd:DefaultName>
+                      <Style>
+                        <Color>White</Color>
+                        <BackgroundColor>ForestGreen</BackgroundColor>
+                        <BorderColor>
+                          <Default>White</Default>
+                        </BorderColor>
+                        <FontWeight>700</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>2</ZIndex>
+                      <CanGrow>true</CanGrow>
+                      <Value>Customer ID</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+              <Height>0.63492cm</Height>
+            </TableRow>
+          </TableRows>
+        </Header>
+        <TableColumns>
+          <TableColumn>
+            <Width>5.25cm</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>12.5cm</Width>
+          </TableColumn>
+        </TableColumns>
+        <Height>1.26984cm</Height>
+        <Left>0.5cm</Left>
+      </Table>
+    </ReportItems>
+    <Height>11.15476cm</Height>
+  </Body>
+  <Language>en-US</Language>
+  <TopMargin>2.5cm</TopMargin>
+  <PageHeight>29.7cm</PageHeight>
+</Report>
